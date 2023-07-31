@@ -12,12 +12,30 @@ import (
 // embedding app.Compo into a struct.
 type hello struct {
 	app.Compo
+	name string
 }
 
 // The Render method is where the component appearance is defined. Here, a
 // "Hello World!" is displayed as a heading.
 func (h *hello) Render() app.UI {
-	return app.H1().Text("Hello World!")
+	return app.Div().Body(
+		app.H1().Body(
+			app.Text("Hello, "),
+			app.If(h.name != "",
+				app.Text(h.name),
+			).Else(
+				app.Text("World!"),
+			),
+		),
+		app.P().Body(
+			app.Input().
+				Type("text").
+				Value(h.name).
+				Placeholder("What is your name?").
+				AutoFocus(true).
+				OnChange(h.ValueTo(&h.name)),
+		),
+	)
 }
 
 // The main function is the entry point where the app is configured and started.
@@ -29,6 +47,7 @@ func main() {
 	// This is done by calling the Route() function,  which tells go-app what
 	// component to display for a given path, on both client and server-side.
 	app.Route("/", &hello{})
+	app.Route("/hello", &hello{})
 
 	// Once the routes set up, the next thing to do is to either launch the app
 	// or the server that serves the app.
