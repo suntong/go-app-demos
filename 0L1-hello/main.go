@@ -1,11 +1,11 @@
 package main
 
 import (
-	"log"
 	"net/http"
 
 	"hello/components"
 
+	"github.com/akrylysov/algnhsa"
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
 )
 
@@ -38,8 +38,5 @@ func main() {
 		Description: "An Hello World! example",
 	})
 
-	log.Println("Listening on http://:8000")
-	if err := http.ListenAndServe(":8000", nil); err != nil {
-		log.Fatal(err)
-	}
+	algnhsa.ListenAndServe(http.DefaultServeMux, nil)
 }
