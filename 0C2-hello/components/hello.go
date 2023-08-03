@@ -38,6 +38,8 @@ func (h *Hello) Render() app.UI {
 					AutoFocus(true).
 					OnChange(h.ValueTo(&h.name)),
 			),
+			app.Div().Style("margin", "1rem").
+				Body(&myButton{}),
 			app.If(h.isAppInstallable,
 				app.Button().
 					Text("Install App").
