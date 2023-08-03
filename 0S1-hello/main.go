@@ -38,8 +38,8 @@ func main() {
 		Description: "An Hello World! example",
 	})
 
-	log.Println("Listening on http://:8000")
-	if err := http.ListenAndServe(":8000", nil); err != nil {
+	log.Println("Listening on http://:8080")
+	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -1,6 +1,8 @@
+export GO111MODULE := on
+
 build:
 	GOARCH=wasm GOOS=js go build -o web/app.wasm
-	go build -o ./hello
+	go build -o ./main
 
 run: build
-	./hello
+	./main
