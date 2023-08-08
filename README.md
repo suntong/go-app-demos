@@ -12,7 +12,7 @@ go-app demos
 
 - **0C1-hello**: duplicated from my go-app-hello, using components
 - **0C2-hello**: add button component, showcasing modularized building
-- **0C3-hello**: 
+- **0C3-hello**: two-level components, the 1st level is universal
 
 - **0L1-hello**: tried for AWS Lambda, not working
 
