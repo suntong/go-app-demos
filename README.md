@@ -14,6 +14,7 @@ go-app demos
 - **0C2-hello**: add button component, showcasing modularized building
 - **0C3-hello**: two-level components, the 1st level is universal
 - **0C3C-hello**: `0C3-hello` with capital fields, not working
+- **0C3D-hello**: `0C3-hello` with capital fields under private struct, OK
 
 - **0L1-hello**: tried for AWS Lambda, not working
 

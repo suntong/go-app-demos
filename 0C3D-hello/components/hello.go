@@ -46,27 +46,31 @@ func (h *Hello) Render() app.UI {
 		)
 }
 
+type dataT struct {
+	Name string
+}
+
 type HelloUI struct {
 	app.Compo
-	Name string
+	data dataT
 }
 
 func (h *HelloUI) Render() app.UI {
 	return app.Div().
 		Body(
-			app.If(h.Name == "",
+			app.If(h.data.Name == "",
 				app.P().Body(
 					app.Input().
 						Type("text").
-						Value(h.Name).
+						Value(h.data.Name).
 						Placeholder("What is your name?").
 						AutoFocus(true).
-						OnChange(h.ValueTo(&h.Name)),
+						OnChange(h.ValueTo(&h.data.Name)),
 				),
 			).Else(
 				app.H1().Body(
 					app.Text("Hello, "),
-					app.Text(h.Name),
+					app.Text(h.data.Name),
 				),
 			))
 }
