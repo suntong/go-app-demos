@@ -1,6 +1,8 @@
 package components
 
 import (
+	"fmt"
+
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
 )
 
@@ -16,7 +18,7 @@ type LoginForm struct {
 	app.Compo
 	username string
 	password string
-	Typ      FormKind
+	fType    FormKind
 }
 
 func (l *LoginForm) setUsername(ctx app.Context, e app.Event) {
@@ -66,8 +68,16 @@ func (l *LoginForm) inputBlur(ctx app.Context, e app.Event) {
 	}
 }
 
+func (l *LoginForm) OnInit(ctx app.Context, e app.Event) {
+	fmt.Println("type", l.fType)
+}
+
+func (l *LoginForm) OnMount(ctx app.Context, e app.Event) {
+	fmt.Println("type", l.fType)
+}
+
 func (l *LoginForm) Render() app.UI {
-	switch l.Typ {
+	switch l.fType {
 	case Login:
 		return app.Div().Class("fill").Body(
 			app.Div().Class("login-form").Body(
@@ -113,6 +123,6 @@ func (l *LoginForm) Render() app.UI {
 
 func NewLoginForm(k FormKind) *LoginForm {
 	return &LoginForm{
-		Typ: k,
+		fType: k,
 	}
 }
