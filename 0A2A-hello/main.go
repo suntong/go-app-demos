@@ -31,6 +31,18 @@ func (h *hello) Render() app.UI {
 			app.Input().
 				Type("text").
 				Value(h.name).
+				// OK: Name("name").ID("frmNameA").Attr("autocomplete", "name").
+				// OK: Name("email").ID("frmEmailA").Attr("autocomplete", "email").
+				// OK: Name("tel").ID("frmTelA").Attr("autocomplete", "tel").
+				// OK: Name("ra").Attr("autocomplete", "billing street-address").
+				// NOK: Name("ra").Attr("autocomplete", "some other string").
+				// NOK: Name("ra").Attr("autocomplete", "ContactID").
+				// NOK: Name("ra").Attr("autocomplete", "section-blue billing nickname").
+				// NOK: Name("ra").Attr("autocomplete", "billing nickname").
+				// NOK: Name("ra").Attr("autocomplete", "billing address-level4").
+				// NOK: Name("ra").Attr("autocomplete", "billing cc-csc").
+				// NOK: Name("ra").Attr("autocomplete", "one-time-code").
+				Name("ra").Attr("autocomplete", "nickname"). // NOK
 				Placeholder("What is your name?").
 				AutoFocus(true).
 				OnChange(h.ValueTo(&h.name)),
