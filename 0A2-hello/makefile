@@ -1,6 +1,6 @@
 build:
 	GOARCH=wasm GOOS=js go build -o web/app.wasm
-	go build -o ./hello
+	go build -o ./boostrap
 
 run: build
-	./hello
+	./boostrap

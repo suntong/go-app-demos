@@ -7,22 +7,22 @@ import (
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
 )
 
-// hello is a component that displays a simple "Hello World!". A component is a
+// appControl is a component that displays a simple "Hello World!". A component is a
 // customizable, independent, and reusable UI element. It is created by
 // embedding app.Compo into a struct.
-type hello struct {
+type appControl struct {
 	app.Compo
 	name string
 }
 
 // The Render method is where the component appearance is defined. Here, a
 // "Hello World!" is displayed as a heading.
-func (h *hello) Render() app.UI {
+func (uc *appControl) Render() app.UI {
 	return app.Div().Body(
 		app.H1().Body(
 			app.Text("Hello, "),
-			app.If(h.name != "",
-				app.Text(h.name),
+			app.If(uc.name != "",
+				app.Text(uc.name),
 			).Else(
 				app.Text("World!"),
 			),
@@ -30,10 +30,10 @@ func (h *hello) Render() app.UI {
 		app.P().Body(
 			app.Input().
 				Type("text").
-				Value(h.name).
+				Value(uc.name).
 				Placeholder("What is your name?").
 				AutoFocus(true).
-				OnChange(h.ValueTo(&h.name)),
+				OnChange(uc.ValueTo(&uc.name)),
 		),
 	)
 }
@@ -42,12 +42,11 @@ func (h *hello) Render() app.UI {
 // It is executed in 2 different environments: A client (the web browser) and a
 // server.
 func main() {
-	// The first thing to do is to associate the hello component with a path.
+	// The first thing to do is to associate the appControl component with a path.
 	//
 	// This is done by calling the Route() function,  which tells go-app what
 	// component to display for a given path, on both client and server-side.
-	app.Route("/", &hello{})
-	app.Route("/hello", &hello{})
+	app.Route("/", &appControl{})
 
 	// Once the routes set up, the next thing to do is to either launch the app
 	// or the server that serves the app.
