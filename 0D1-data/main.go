@@ -39,6 +39,12 @@ func (uc *appControl) OnDismount() {
 // The Render method is where the component appearance is defined. Here, a
 // "Hello World!" is displayed as a heading.
 func (uc *appControl) Render() app.UI {
+	if uc.name == "" {
+		uc.readFromLocalStorage()
+		if uc.name == "<null>" {
+			uc.name = ""
+		}
+	}
 	return app.Div().Body(
 		app.H1().Body(
 			app.Text("Hello, "),
@@ -69,7 +75,7 @@ func (uc *appControl) OnChange(ctx app.Context, e app.Event) {
 
 func (uc *appControl) readFromLocalStorage() {
 	uc.name = app.Window().Get("localStorage").Call("getItem", dataStorageKey).String()
-	log.Println(uc.name)
+	log.Println("readFromLocalStorage:", uc.name)
 }
 
 // The main function is the entry point where the app is configured and started.
