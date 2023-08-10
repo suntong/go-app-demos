@@ -7,6 +7,8 @@ import (
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
 )
 
+const dataStorageKey = "0D2-data.Name"
+
 // appControl is a component that displays a simple "Hello World!". A component is a
 // customizable, independent, and reusable UI element. It is created by
 // embedding app.Compo into a struct.
@@ -33,9 +35,19 @@ func (uc *appControl) Render() app.UI {
 				Value(uc.name).
 				Placeholder("What is your name?").
 				AutoFocus(true).
-				OnChange(uc.ValueTo(&uc.name)),
+				//OnChange(uc.ValueTo(&uc.name)),
+				OnChange(uc.OnChange),
 		),
 	)
+}
+
+func (uc *appControl) OnChange(ctx app.Context, e app.Event) {
+	uc.name = ctx.JSSrc().Get("value").String()
+	//app.Window().Get("localStorage").Call("setItem", dataStorageKey, uc.name)
+	ctx.LocalStorage().Set(dataStorageKey, uc.name)
+	uc.name = ""
+	ctx.LocalStorage().Get(dataStorageKey, &uc.name)
+	log.Println("readFromLocalStorage:", uc.name)
 }
 
 // The main function is the entry point where the app is configured and started.
