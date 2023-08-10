@@ -7,12 +7,33 @@ import (
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
 )
 
+const dataStorageKey = "0D1-data.Name"
+
 // appControl is a component that displays a simple "Hello World!". A component is a
 // customizable, independent, and reusable UI element. It is created by
 // embedding app.Compo into a struct.
 type appControl struct {
 	app.Compo
 	name string
+
+	removeEventListeners []func()
+}
+
+func (uc *appControl) OnMount(ctx app.Context) {
+	uc.removeEventListeners = []func(){
+		app.Window().AddEventListener("storage", func(ctx app.Context, e app.Event) { // This event only fires in other tabs; it does not lead to local race conditions with c.writeKeysToLocalStorage
+			uc.readFromLocalStorage()
+			uc.Update()
+		}),
+	}
+}
+
+func (uc *appControl) OnDismount() {
+	if uc.removeEventListeners != nil {
+		for _, clearListener := range uc.removeEventListeners {
+			clearListener()
+		}
+	}
 }
 
 // The Render method is where the component appearance is defined. Here, a
@@ -33,9 +54,22 @@ func (uc *appControl) Render() app.UI {
 				Value(uc.name).
 				Placeholder("What is your name?").
 				AutoFocus(true).
-				OnChange(uc.ValueTo(&uc.name)),
+				//OnChange(uc.ValueTo(&uc.name)),
+				OnChange(uc.OnChange),
 		),
 	)
+}
+
+func (uc *appControl) OnChange(ctx app.Context, e app.Event) {
+	uc.name = ctx.JSSrc().Get("value").String()
+	app.Window().Get("localStorage").Call("setItem", dataStorageKey, uc.name)
+	uc.name = ""
+	uc.readFromLocalStorage()
+}
+
+func (uc *appControl) readFromLocalStorage() {
+	uc.name = app.Window().Get("localStorage").Call("getItem", dataStorageKey).String()
+	log.Println(uc.name)
 }
 
 // The main function is the entry point where the app is configured and started.
