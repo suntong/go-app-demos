@@ -1,4 +1,4 @@
-module github.com/suntong/go-app-demos/0A1-hello
+module project
 
 go 1.19
 
