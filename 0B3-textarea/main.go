@@ -39,7 +39,11 @@ func (uc *appControl) OnMount(ctx app.Context) {
 // The Render method is where the component appearance is defined. Here, a
 // "Hello World!" is displayed as a heading.
 func (uc *appControl) Render() app.UI {
+	if uc.clipboard == nil {
+		uc.clipboard = &clipboard.Clipboard{ID: "clipboard"}
+	}
 	return app.Div().Body(
+		uc.clipboard,
 		app.If(uc.textStr != "",
 			app.Textarea().Text(uc.textStr).Cols(80).ReadOnly(true),
 		).Else(
