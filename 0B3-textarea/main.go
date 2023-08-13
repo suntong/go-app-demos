@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"image"
-	"image/color"
 	"log"
 	"net/http"
 
@@ -11,7 +10,6 @@ import (
 
 	"github.com/mlctrez/imgtofactbp/components/clipboard"
 	"github.com/mlctrez/imgtofactbp/conversions"
-	"github.com/nfnt/resize"
 )
 
 const ImageRenderWidth = 300
@@ -64,11 +62,7 @@ func (uc *appControl) Render() app.UI {
 func (uc *appControl) imagesRow() app.HTMLDiv {
 	return app.Div().Style("display", "flex").Body(
 		app.Img().ID("uploadedImage").Src("/web/logo-512.png").Width(ImageRenderWidth).
-			Style("cursor", "pointer"), //.OnClick(func(ctx app.Context, e app.Event) { uc.picker.Open() }),
-		app.Img().ID("grayScaleImage").Src("/web/logobw-512.png").Width(ImageRenderWidth).
-			Style("cursor", "not-allowed"),
-		app.Img().ID("blueprintRender").
-			Style("cursor", "not-allowed").Src("/web/logobw-512.png").Width(ImageRenderWidth),
+			Style("cursor", "pointer"),
 	)
 }
 
@@ -84,38 +78,8 @@ func (uc *appControl) imagePaste(data *clipboard.PasteData) {
 
 func (uc *appControl) renderImages() {
 	// normalize image width to 400px
-	uc.scaled = resize.Resize(ImageRenderWidth, 0, uc.original, resize.Lanczos3)
-	setImageSrc("uploadedImage", conversions.ImageToBase64(uc.scaled))
-	grayScale, _ := conversions.GrayScale(uc.scaled)
-	uc.grayscale = grayScale
-	setImageSrc("grayScaleImage", conversions.ImageToBase64(grayScale))
-	uc.renderPreview()
-}
-
-func (uc *appControl) renderPreview() {
-	if uc.grayscale == nil {
-		return
-	}
-	img := uc.grayscale
-	preview := image.NewGray(uc.grayscale.Bounds())
-	onColor := color.White
-	offColor := color.Black
-	if uc.inverted {
-		onColor = color.Black
-		offColor = color.White
-	}
-	for x := 0; x < img.Bounds().Max.X; x = x + 1 {
-		for y := 0; y < img.Bounds().Max.Y; y = y + 1 {
-			r, _, _, _ := img.At(x, y).RGBA()
-			if r > uc.thresholdValue {
-				preview.Set(x, y, onColor)
-			} else {
-				preview.Set(x, y, offColor)
-			}
-		}
-	}
-	setImageSrc("blueprintRender", conversions.ImageToBase64(preview))
-
+	//uc.scaled = resize.Resize(ImageRenderWidth, 0, uc.original, resize.Lanczos3)
+	setImageSrc("uploadedImage", conversions.ImageToBase64(uc.original))
 }
 
 func setImageSrc(id string, src string) {
