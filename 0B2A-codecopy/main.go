@@ -4,9 +4,16 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
 )
+
+////////////////////////////////////////
+// Credit:
+// https://github.com/maxence-charriere/go-app/issues/859#issuecomment-1677198131
+// https://github.com/maxence-charriere/go-app/issues/872#issuecomment-1677725579
+////////////////////////////////////////
 
 // Define component, a customizable, independent, and reusable UI
 // element. It is created by embedding app.Compo into a struct.
@@ -34,29 +41,62 @@ func (m *codeBlockModel) OnInit() {
 func (m *codeBlockModel) Render() app.UI {
 	return app.Div().Class("code-container").Body(
 		app.Range(m.code).Slice(func(i int) app.UI {
-			return codeBlock(fmt.Sprintf("piece%03d", i))
+			return &CodeBlock{code: m.code[i], id: fmt.Sprintf("codeBlock%02d", i+1)}
 		}),
 	)
 }
 
-func codeBlock(cid string) app.UI {
+type CodeBlock struct {
+	app.Compo
+	id   string
+	code string
+}
+
+func (m *CodeBlock) Render() app.UI {
 	return app.Div().Class("code-block").Body(
 		copySVG(),
-		app.Button().Class("copy-button").
-			Text("Copy code").
-			OnClick(m.onButtonClicked),
+		&CopyButton{text: "Copy code", from: m},
 		app.Pre().Body(
-			app.Code().ID(cid).Text(m.code),
+			app.Code().ID(m.id).Text(m.code),
 		),
 	)
 }
 
 func copySVG() app.UI {
-	return app.Raw(`<svg class="copy-svg" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>`)
+	return app.Raw(`<svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="copy-svg h-4 w-4" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>`)
 }
 
-func (m *codeBlockModel) onButtonClicked(ctx app.Context, e app.Event) {
-	copyToClipboard(m.code)
+type CopyButton struct {
+	app.Compo
+	from *CodeBlock
+	text string
+}
+
+func (cb *CopyButton) Render() app.UI {
+	return app.Button().Class("copy-button").Text(cb.text).OnClick(cb.onClick)
+}
+
+func (cb *CopyButton) onClick(ctx app.Context, e app.Event) {
+	// using go
+	log.Println("copy via go\n", cb.from.code)
+
+	// using element id
+	val := app.Window().GetElementByID(cb.from.id).Get("innerHTML")
+	log.Println("copy via dom\n", val.String())
+
+	isSecure := app.Window().Get("isSecureContext")
+	log.Println("isSecureContext:", isSecure)
+	if isSecure.Bool() {
+		app.Window().Get("navigator").Get("clipboard").Call("writeText", val)
+	} else {
+		copyToClipboard(cb.from.code)
+	}
+	cb.text = "Copied"
+	ctx.After(2*time.Second, cb.revertText)
+}
+
+func (cb *CopyButton) revertText(ctx app.Context) {
+	cb.text = "Copy code"
 }
 
 func copyToClipboard(text string) {
