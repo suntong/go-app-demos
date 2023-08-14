@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -11,31 +12,47 @@ import (
 // element. It is created by embedding app.Compo into a struct.
 type codeBlockModel struct {
 	app.Compo
-	code string
+	code []string
 }
 
 func (m *codeBlockModel) OnInit() {
-	m.code = `
+	m.code = []string{`
                     // Code block 1
                     function helloWorld() {
                         console.log("Hello, world!");
                     }
-`
+`,
+		`
+                    // Code block 2
+                    for (let i = 0; i < 5; i++) {
+                        console.log(i);
+                    }
+`}
 }
 
 // The Render method is where the component appearance is defined.
 func (m *codeBlockModel) Render() app.UI {
 	return app.Div().Class("code-container").Body(
-		app.Div().Class("code-block").Body(
-			app.Raw(`<svg class="copy-svg" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>`),
-			app.Button().Class("copy-button").
-				Text("Copy code").
-				OnClick(m.onButtonClicked),
-			app.Pre().Body(
-				app.Code().Text(m.code),
-			),
+		app.Range(m.code).Slice(func(i int) app.UI {
+			return codeBlock(fmt.Sprintf("piece%03d", i))
+		}),
+	)
+}
+
+func codeBlock(cid string) app.UI {
+	return app.Div().Class("code-block").Body(
+		copySVG(),
+		app.Button().Class("copy-button").
+			Text("Copy code").
+			OnClick(m.onButtonClicked),
+		app.Pre().Body(
+			app.Code().ID(cid).Text(m.code),
 		),
 	)
+}
+
+func copySVG() app.UI {
+	return app.Raw(`<svg class="copy-svg" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>`)
 }
 
 func (m *codeBlockModel) onButtonClicked(ctx app.Context, e app.Event) {
