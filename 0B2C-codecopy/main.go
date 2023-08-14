@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
+
+	"github.com/mlctrez/imgtofactbp/components/clipboard"
 )
 
 // Define component, a customizable, independent, and reusable UI
@@ -12,6 +14,8 @@ import (
 type codeBlockModel struct {
 	app.Compo
 	code string
+
+	clipboard *clipboard.Clipboard
 }
 
 func (m *codeBlockModel) OnInit() {
@@ -25,15 +29,25 @@ func (m *codeBlockModel) OnInit() {
 
 // The Render method is where the component appearance is defined.
 func (m *codeBlockModel) Render() app.UI {
+	if m.clipboard == nil {
+		m.clipboard = &clipboard.Clipboard{ID: "clipboard"}
+	}
 	return app.Div().Class("code-container").Body(
+		m.clipboard,
 		app.Div().Class("code-block").Body(
-			app.Raw(`<svg class="copy-svg" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg><button class="copy-button">Copy code</button>`),
-			app.Raw(`<button class="copy-button">Copy code</button>`),
+			app.Raw(`<svg class="copy-svg" stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>`),
+			app.Button().Class("copy-button").
+				Text("Copy code").
+				OnClick(m.onButtonClicked),
 			app.Pre().Body(
 				app.Code().Text(m.code),
 			),
 		),
 	)
+}
+
+func (m *codeBlockModel) onButtonClicked(ctx app.Context, e app.Event) {
+	m.clipboard.WriteText(m.code)
 }
 
 // The main function is the entry point where the app is configured and started.

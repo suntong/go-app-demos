@@ -1,1 +1,1 @@
-../test/script.js
+../../0B2-codecopy/test/script.js
