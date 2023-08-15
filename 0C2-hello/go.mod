@@ -1,4 +1,4 @@
-module hello
+module project
 
 go 1.19
 

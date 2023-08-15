@@ -4,28 +4,28 @@ import (
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
 )
 
-type Hello struct {
+type AppControl struct {
 	app.Compo
 
 	name             string
 	isAppInstallable bool
 }
 
-func (h *Hello) OnMount(ctx app.Context) {
-	h.isAppInstallable = ctx.IsAppInstallable()
+func (uc *AppControl) OnMount(ctx app.Context) {
+	uc.isAppInstallable = ctx.IsAppInstallable()
 }
 
-func (h *Hello) onInstallButtonClicked(ctx app.Context, e app.Event) {
+func (uc *AppControl) onInstallButtonClicked(ctx app.Context, e app.Event) {
 	ctx.ShowAppInstallPrompt()
 }
 
-func (h *Hello) Render() app.UI {
+func (uc *AppControl) Render() app.UI {
 	return app.Div().
 		Body(
 			app.H1().Body(
-				app.Text("Hello, "),
-				app.If(h.name != "",
-					app.Text(h.name),
+				app.Text("AppControl, "),
+				app.If(uc.name != "",
+					app.Text(uc.name),
 				).Else(
 					app.Text("World!"),
 				),
@@ -33,17 +33,17 @@ func (h *Hello) Render() app.UI {
 			app.P().Body(
 				app.Input().
 					Type("text").
-					Value(h.name).
+					Value(uc.name).
 					Placeholder("What is your name?").
 					AutoFocus(true).
-					OnChange(h.ValueTo(&h.name)),
+					OnChange(uc.ValueTo(&uc.name)),
 			),
 			app.Div().Style("margin", "1rem").
 				Body(&myButton{}),
-			app.If(h.isAppInstallable,
+			app.If(uc.isAppInstallable,
 				app.Button().
 					Text("Install App").
-					OnClick(h.onInstallButtonClicked),
+					OnClick(uc.onInstallButtonClicked),
 			),
 		)
 }
