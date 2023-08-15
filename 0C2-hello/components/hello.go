@@ -4,6 +4,24 @@ import (
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
 )
 
+var _ app.AppInstaller = (*InstallButton)(nil)
+
+type InstallButton struct {
+	app.Compo
+	installable bool
+}
+
+func (i *InstallButton) OnAppInstallChange(ctx app.Context) {
+	i.installable = ctx.IsAppInstallable()
+}
+
+func (i *InstallButton) Render() app.UI {
+	return app.Button().Disabled(!i.installable).Text("install").
+		OnClick(func(ctx app.Context, e app.Event) {
+			ctx.ShowAppInstallPrompt()
+		})
+}
+
 type AppControl struct {
 	app.Compo
 
@@ -22,6 +40,7 @@ func (uc *AppControl) onInstallButtonClicked(ctx app.Context, e app.Event) {
 func (uc *AppControl) Render() app.UI {
 	return app.Div().
 		Body(
+			&InstallButton{},
 			app.H1().Body(
 				app.Text("AppControl, "),
 				app.If(uc.name != "",
