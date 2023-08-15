@@ -2,6 +2,7 @@ package components
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
 )
@@ -23,5 +24,9 @@ func (c *myButton) OnMount(ctx app.Context) {
 func (c *myButton) onClick(ctx app.Context, e app.Event) {
 	fmt.Println("onClick is called")
 	c.name = "clicked"
-	//c.Update()
+	ctx.After(2*time.Second, c.revertText)
+}
+
+func (c *myButton) revertText(ctx app.Context) {
+	c.name = "click here"
 }
