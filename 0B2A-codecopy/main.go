@@ -39,10 +39,17 @@ func (m *codeBlockModel) OnInit() {
 
 // The Render method is where the component appearance is defined.
 func (m *codeBlockModel) Render() app.UI {
-	return app.Div().Class("code-container").Body(
-		app.Range(m.code).Slice(func(i int) app.UI {
-			return &CodeBlock{code: m.code[i], id: fmt.Sprintf("codeBlock%02d", i+1)}
-		}),
+	return app.Div().Body(
+		app.H1().Text("H1"),
+		app.H4().Text("H4"),
+
+		app.Div().Class("code-container").Body(
+			app.Range(m.code).Slice(func(i int) app.UI {
+				id := len(m.code) - 1 - i
+				//id = i
+				return &CodeBlock{code: m.code[id], id: fmt.Sprintf("codeBlock%02d", id)}
+			}),
+		),
 	)
 }
 
