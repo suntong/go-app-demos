@@ -57,7 +57,7 @@ func (m *codeBlockModel) Render() app.UI {
 			app.Range(m.code).Slice(func(i int) app.UI {
 				id := len(m.code) - 1 - i
 				//id = i
-				return &CodeBlock{code: m.code[id], id: fmt.Sprintf("codeBlock%02d", id)}
+				return &CodeBlock{Code: m.code[id], ID: fmt.Sprintf("codeBlock%02d", id)}
 			}),
 		),
 	)
@@ -65,8 +65,8 @@ func (m *codeBlockModel) Render() app.UI {
 
 type CodeBlock struct {
 	app.Compo
-	id   string
-	code string
+	ID   string
+	Code string
 }
 
 func (m *CodeBlock) Render() app.UI {
@@ -74,7 +74,7 @@ func (m *CodeBlock) Render() app.UI {
 		copySVG(),
 		&CopyButton{text: "Copy code", from: m},
 		app.Pre().Body(
-			app.Code().ID(m.id).Text(m.code),
+			app.Code().ID(m.ID).Text(m.Code),
 		),
 	)
 }
@@ -95,10 +95,10 @@ func (cb *CopyButton) Render() app.UI {
 
 func (cb *CopyButton) onClick(ctx app.Context, e app.Event) {
 	// using go
-	log.Println("copy via go\n", cb.from.code)
+	log.Println("copy via go\n", cb.from.Code)
 
-	// using element id
-	val := app.Window().GetElementByID(cb.from.id).Get("innerHTML")
+	// using element ID
+	val := app.Window().GetElementByID(cb.from.ID).Get("innerHTML")
 	log.Println("copy via dom\n", val.String())
 
 	isSecure := app.Window().Get("isSecureContext")
@@ -106,7 +106,7 @@ func (cb *CopyButton) onClick(ctx app.Context, e app.Event) {
 	if isSecure.Bool() {
 		app.Window().Get("navigator").Get("clipboard").Call("writeText", val)
 	} else {
-		copyToClipboard(cb.from.code)
+		copyToClipboard(cb.from.Code)
 	}
 	cb.text = "Copied"
 	ctx.After(2*time.Second, cb.revertText)
