@@ -23,18 +23,28 @@ type codeBlockModel struct {
 }
 
 func (m *codeBlockModel) OnInit() {
-	m.code = []string{`
+	// simulating that data gets added step by step
+	go func() {
+		time.Sleep(time.Second)
+		m.code = []string{`
                     // Code block 1
                     function helloWorld() {
                         console.log("Hello, world!");
                     }
-`,
-		`
+`}
+		m.Update()
+	}()
+
+	go func() {
+		time.Sleep(2 * time.Second)
+		m.code = append(m.code, `
                     // Code block 2
                     for (let i = 0; i < 5; i++) {
                         console.log(i);
                     }
-`}
+`)
+		m.Update()
+	}()
 }
 
 // The Render method is where the component appearance is defined.
