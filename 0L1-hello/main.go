@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"hello/components"
+	"project/components"
 
 	"github.com/akrylysov/algnhsa"
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
