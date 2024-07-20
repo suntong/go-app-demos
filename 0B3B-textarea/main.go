@@ -1,9 +1,10 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
 )
@@ -15,6 +16,12 @@ type appControl struct {
 	app.Compo
 	Content string
 	Image   string
+}
+
+// PasteData is the type and data pasted into the clipboard
+type PasteData struct {
+	Type string
+	Data string
 }
 
 func (uc *appControl) OnMount(ctx app.Context) {
@@ -42,22 +49,53 @@ func (uc *appControl) OnPaste(ctx app.Context, e app.Event) {
 
 	for i := 0; i < items.Length(); i++ {
 		item := items.Call("item", i)
-		if item.Get("kind").String() == "string" {
-			item.Call("getAsString", app.FuncOf(uc.OnTextPaste))
-		} else if item.Get("kind").String() == "file" && strings.HasPrefix(item.Get("type").String(), "image/") {
-			file := item.Call("getAsFile")
-			reader := app.NewFileReader(file)
-			reader.OnLoad(func(ctx app.Context, e app.Event) {
-				uc.Image = reader.Result().String()
-				//uc.Update()
-			})
-			reader.ReadAsDataURL(file)
+		clipboardItem, err := uc.readPasteData(item)
+		if err == ProtectedData {
+			continue
 		}
+		if err != nil {
+			fmt.Println("error reading clipboard item", i, err)
+			continue
+		}
+		ctx.NewActionWithValue("Clipboard:paste", clipboardItem, app.Tag{Name: "id", Value: c.ID})
 	}
 }
 
 func (uc *appControl) OnTextPaste(ctx app.Context, value app.Value) {
 	uc.Content = value.String()
+}
+
+var ProtectedData = errors.New("protected data")
+
+func (uc *appControl) readPasteData(item app.Value) (result *PasteData, err error) {
+	result = &PasteData{Type: item.Get("type").String()}
+	switch item.Get("kind").String() {
+	case "string":
+		done := make(chan bool)
+		item.Call("getAsString", app.FuncOf(func(this app.Value, args []app.Value) interface{} {
+			result.Data = args[0].String()
+			done <- true
+			return nil
+		}))
+		<-done
+	case "file":
+		done := make(chan bool)
+		reader := app.Window().Get("FileReader").New()
+		reader.Set("onloadend", app.FuncOf(func(this app.Value, args []app.Value) interface{} {
+			done <- true
+			return nil
+		}))
+		reader.Call("readAsDataURL", item.Call("getAsFile"))
+		<-done
+		if reader.Get("error").Truthy() {
+			// TODO: extract real error from reader.Get("error")
+			return nil, errors.New("error reading clipboard data")
+		}
+		result.Data = reader.Get("result").String()
+	default:
+		return nil, ProtectedData
+	}
+	return result, nil
 }
 
 // The main function is the entry point where the app is configured and started.
